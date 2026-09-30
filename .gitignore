@@ -1,0 +1,28 @@
+# Unreal generated
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+
+# IDE
+.vs/
+.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Marketplace / Fab assets (re-add from Fab)
+Content/ParagonMinions/
+Content/ParagonBoris/
+
+# Rider auto-installs this plugin
+Plugins/Developer/RiderLink/
+
+# Misc
+logs/
+*.log
