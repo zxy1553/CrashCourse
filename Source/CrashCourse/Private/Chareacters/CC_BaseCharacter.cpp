@@ -31,4 +31,14 @@ void ACC_BaseCharacter::GiveStartupAbilities()
 	
 }
 
+void ACC_BaseCharacter::InitializeAttributes() const
+{
+	checkf(IsValid(InitializeAttributesEffect), TEXT("InitializeAttributesEffect not set."));
+	
+	FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(InitializeAttributesEffect, 1.f, ContextHandle);
+	if (!SpecHandle.IsValid()) return;
+	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+}
+
 
