@@ -15,6 +15,7 @@ Plugins/**/Intermediate/
 *.sdf
 *.VC.db
 *.VC.opendb
+*.DotSettings.user
 
 # Marketplace / Fab assets (re-add from Fab)
 Content/ParagonMinions/

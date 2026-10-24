@@ -86,7 +86,12 @@ void UCC_WidgetComponent::BindWidgetToAttributeChanges(UWidget* WidgetObject, co
 		
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Key).AddLambda([this, AttributeWidget, &Pair](const FOnAttributeChangeData& AttributeChangeData)
 	{
-		AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get());	// for change during game
+		AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get());	// for attribute change during game
+	});
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value).AddLambda([this, AttributeWidget, &Pair](const FOnAttributeChangeData& AttributeChangeData)
+	{
+		AttributeWidget->OnAttributeChange(Pair, AttributeSet.Get());	// for max attribute change during game
 	});
 	
 }
