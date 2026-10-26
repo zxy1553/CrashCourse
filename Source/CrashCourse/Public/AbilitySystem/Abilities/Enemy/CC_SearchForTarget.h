@@ -42,6 +42,7 @@ private:
 	TObjectPtr<UAbilityTask_WaitDelay> AttackDelayTask;	
 	
 	void StartSearch();	
+	void CancelPendingTasks();
 	
 	UFUNCTION()
 	void EndAttackEventReceived(FGameplayEventData Payload);

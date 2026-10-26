@@ -48,7 +48,11 @@ void UCC_SearchForTarget::StartSearch()
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, FString::Printf(TEXT("UCC_SearchForTarget::StartSearch")));
 	}
 
-	if (!OwningEnemy.IsValid()) return;
+	// 所有重启都走这里：先结束上一轮没跑完的任务，保证任何时候只有一条搜索链
+	CancelPendingTasks();
+	
+	// 击飞中不搜索，落地后 EnableMovementOnLanded 发出的 EndAttack 事件会再调用 StartSearch
+	if (!OwningEnemy.IsValid() || OwningEnemy->bIsBeginLaunched) return;
 	
 	const float SearchDelay = FMath::RandRange(OwningEnemy->MinAttackDelay, OwningEnemy->MaxAttackDelay);
 	SearchDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, SearchDelay);
@@ -56,12 +60,21 @@ void UCC_SearchForTarget::StartSearch()
 	SearchDelayTask->Activate();	
 }
 
+void UCC_SearchForTarget::CancelPendingTasks()
+{
+	// EndTask 会把任务标记为垃圾，WaitDelay 内部的定时器到点后不会再回调
+	if (SearchDelayTask) SearchDelayTask->EndTask();
+	if (AttackDelayTask) AttackDelayTask->EndTask();
+	if (MoveToLocationOrActorTask)
+	{
+		MoveToLocationOrActorTask->OnMoveTaskFinished.RemoveAll(this);
+		MoveToLocationOrActorTask->ExternalCancel();
+	}
+}
+
 void UCC_SearchForTarget::EndAttackEventReceived(FGameplayEventData Payload)
 {
-	if (OwningEnemy.IsValid() && !OwningEnemy->bIsBeginLaunched)
-	{
-		StartSearch();
-	}
+	StartSearch();
 }
 
 void UCC_SearchForTarget::Search()
@@ -117,7 +130,10 @@ void UCC_SearchForTarget::AttackTarget(TEnumAsByte<EPathFollowingResult::Type> R
 }
 
 void UCC_SearchForTarget::Attack()
-{ 
+{
+	// 攻击延时期间被击飞了，就不攻击，等落地后重新搜索
+	if (!OwningEnemy.IsValid() || OwningEnemy->bIsBeginLaunched) return;
+
 	const FGameplayTag AttackTag = CCTags::CCAbilities::Enemy::Attack;
 	GetAbilitySystemComponentFromActorInfo()->TryActivateAbilitiesByTag(AttackTag.GetSingleTagContainer());
 	
